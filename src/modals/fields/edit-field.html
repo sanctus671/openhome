@@ -1,0 +1,69 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>
+            Edit Field
+        </ion-title>
+        <ion-buttons start>
+            <button ion-button (click)="dismiss()">
+                <span ion-text color="primary" showWhen="ios">Cancel</span>
+                <ion-icon name="md-close" showWhen="android, windows"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+
+
+<ion-content>
+
+<ion-list>
+
+    <ion-item>
+        <ion-label floating>Name</ion-label>
+        <ion-input type="text" value="" [(ngModel)]="field.name"></ion-input>
+    </ion-item>
+    
+    <ion-item>
+        <ion-label floating>Label</ion-label>
+        <ion-input type="text" [(ngModel)]="field.label"></ion-input>
+    </ion-item>   
+    
+    <ion-item>
+        <ion-label floating>Field Type</ion-label>
+        <ion-select [(ngModel)]="field.inputType">
+            <ion-option value="text">Text</ion-option>
+            <ion-option value="email">Email</ion-option>
+            <ion-option value="select">Select</ion-option>
+            <ion-option value="textarea">Long Text</ion-option>
+        </ion-select>
+    </ion-item>  
+    
+
+    
+    <ion-item-group *ngIf="field.inputType === 'select'" class="field-options"> 
+        <p>Options</p>
+        <ion-item *ngFor="let option of field.options; let i = index" class="from-group details">
+            <ion-label floating>Option ({{i + 1}})</ion-label>
+            <ion-input type="text" [(ngModel)]="field.options[i]"></ion-input>
+            <ion-icon name="trash" item-right (click)="removeOption(i)"></ion-icon>
+        </ion-item>        
+        
+        <button ion-button block (click)="addOption()">Add Option</button>
+    </ion-item-group>
+    
+    <ion-item>
+      <ion-label>Required</ion-label>
+      <ion-checkbox [(ngModel)]="field.required"></ion-checkbox>
+    </ion-item>   
+    
+    
+    <button ion-button block (click)="updateField()">Update Field</button>
+    
+    
+</ion-list>    
+    
+    
+    
+    
+    
+</ion-content>
