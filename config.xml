@@ -137,7 +137,7 @@
     
     <gap:plugin  name="cordova-plugin-camera" source="npm" version="^2.4.1" />
 	
-    <gap:plugin  name="cordova-plugin-email-composer" source="npm" version="0.8.2" />	
+    <gap:plugin  spec="https://github.com/hypery2k/cordova-email-plugin#master" />	
 	
 
 </widget>
