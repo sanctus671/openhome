@@ -35,3 +35,6 @@ Thumbs.db
 UserInterfaceState.xcuserstate
 /nbproject/private/
 /nbproject
+/tsconfig.json
+/.editorconfig
+/tslint.json
