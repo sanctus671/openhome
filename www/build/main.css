@@ -25540,6 +25540,30 @@ ion-list.select-list .item ion-icon[item-left] {
   margin-top: 9px;
 }
 
+ion-list.select-list .item .add-list-button {
+  background-color: transparent;
+  margin: 0px;
+  padding: 0px;
+  font-size: 34px;
+  line-height: 24px;
+  padding-right: 5px;
+}
+
+ion-list.select-list .item .add-list-button ion-icon {
+  margin-top: 0px;
+}
+
+.premium-header {
+  text-align: center;
+  max-width: 400px;
+  margin: 0 auto;
+  padding-bottom: 25px;
+}
+
+.premium-list .item p {
+  white-space: pre-wrap;
+}
+
 .form-container {
   background-size: cover;
   background-position: center center;
