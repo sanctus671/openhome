@@ -165,17 +165,14 @@ var SubmissionPage = (function () {
         this.properties = { list: params.data.list, premium: false };
         this.storage.get("submissions").then(function (data) {
             if (data) {
-                console.log(data);
                 for (var index in data) {
                     if (index === _this.properties.list) {
                         _this.submissions = data[index];
-                        console.log(_this.submissions);
                     }
                 }
             }
         });
         this.storage.get('premium').then(function (data) {
-            console.log(data);
             if (data) {
                 _this.properties.premium = data;
             }
@@ -191,7 +188,6 @@ var SubmissionPage = (function () {
         var _this = this;
         var modal = this.modalCtrl.create(__WEBPACK_IMPORTED_MODULE_3__modals_premium_premium__["a" /* PremiumModal */]);
         modal.onDidDismiss(function (data) {
-            console.log(data);
             if (!data) {
                 return;
             }
@@ -341,7 +337,6 @@ var HomePage = (function () {
             else {
                 _this.setupFields();
             }
-            console.log(_this.fields);
         });
         this.submission = {};
         this.properties = { list: "default", live: false, background: "assets/img/background.jpg", logo: "assets/img/logo.png", intro: "Please answer the following questions", premium: false };
@@ -369,13 +364,11 @@ var HomePage = (function () {
             }
         });
         this.storage.get('introMessage').then(function (data) {
-            console.log(data);
             if (data) {
                 _this.properties.intro = data;
             }
         });
         this.storage.get('premium').then(function (data) {
-            console.log(data);
             if (data) {
                 _this.properties.premium = data;
             }
@@ -416,7 +409,6 @@ var HomePage = (function () {
         var _this = this;
         var modal = this.modalCtrl.create(__WEBPACK_IMPORTED_MODULE_5__modals_premium_premium__["a" /* PremiumModal */]);
         modal.onDidDismiss(function (data) {
-            console.log(data);
             if (!data) {
                 return;
             }
@@ -434,7 +426,6 @@ var HomePage = (function () {
         }
         var modal = this.modalCtrl.create(__WEBPACK_IMPORTED_MODULE_2__modals_fields_add_field__["a" /* AddFieldModal */]);
         modal.onDidDismiss(function (data) {
-            console.log(data);
             if (!data) {
                 return;
             }
@@ -450,7 +441,6 @@ var HomePage = (function () {
         }
         var modal = this.modalCtrl.create(__WEBPACK_IMPORTED_MODULE_3__modals_fields_edit_field__["a" /* EditFieldModal */], JSON.parse(JSON.stringify(field)));
         modal.onDidDismiss(function (data) {
-            console.log(data);
             if (!data) {
                 return;
             }
@@ -459,7 +449,6 @@ var HomePage = (function () {
                     _this.fields[index] = data;
                 }
             }
-            console.log(_this.fields);
             _this.storage.set('fields', _this.fields);
         });
         modal.present();
@@ -833,7 +822,6 @@ var ListsModal = (function () {
             }
         });
         this.storage.get('premium').then(function (data) {
-            console.log(data);
             if (data) {
                 _this.properties.premium = data;
             }
@@ -846,7 +834,6 @@ var ListsModal = (function () {
         var _this = this;
         var modal = this.modalCtrl.create(__WEBPACK_IMPORTED_MODULE_3__modals_premium_premium__["a" /* PremiumModal */]);
         modal.onDidDismiss(function (data) {
-            console.log(data);
             if (!data) {
                 return;
             }
@@ -859,7 +846,6 @@ var ListsModal = (function () {
     ListsModal.prototype.addList = function (ev, newList) {
         ev.stopPropagation();
         ev.preventDefault();
-        console.log(newList);
         if (!newList) {
             return;
         }
@@ -1094,7 +1080,6 @@ var PremiumModal = (function () {
         this.iap
             .getProducts(['com.openhome.app.premium'])
             .then(function (products) {
-            console.log(products);
             if (products.length > 0) {
                 _this.product = products[0];
             }
@@ -1109,7 +1094,6 @@ var PremiumModal = (function () {
             .buy(this.product.productId)
             .then(function (data) {
             _this.viewCtrl.dismiss(true);
-            console.log(data);
         })
             .catch(function (err) {
             console.log(err);
