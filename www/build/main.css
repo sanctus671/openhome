@@ -25547,6 +25547,7 @@ ion-list.select-list .item .add-list-button {
   font-size: 34px;
   line-height: 24px;
   padding-right: 5px;
+  z-index: 99;
 }
 
 ion-list.select-list .item .add-list-button ion-icon {
