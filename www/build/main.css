@@ -25565,6 +25565,14 @@ ion-list.select-list .item .add-list-button ion-icon {
   white-space: pre-wrap;
 }
 
+.restore {
+  text-align: center;
+  max-width: 300px;
+  padding: 10px 20px;
+  margin: 0 auto;
+  margin-bottom: 20px;
+}
+
 .form-container {
   background-size: cover;
   background-position: center center;
