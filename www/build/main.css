@@ -25635,6 +25635,10 @@ ion-list.select-list .item .add-list-button ion-icon {
   max-width: 100px;
 }
 
+.platform-ios .button.edit-mode-button, .button.go-live-button {
+  top: 20px;
+}
+
 .button.edit-mode-button {
   opacity: 0;
 }
