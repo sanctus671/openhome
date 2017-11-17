@@ -94,9 +94,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 var SubmissionsPage = (function () {
-    function SubmissionsPage(navCtrl, storage) {
+    function SubmissionsPage(navCtrl, storage, alertCtrl) {
         this.navCtrl = navCtrl;
         this.storage = storage;
+        this.alertCtrl = alertCtrl;
         this.submissions = [];
     }
     SubmissionsPage.prototype.ionViewDidEnter = function () {
@@ -111,15 +112,43 @@ var SubmissionsPage = (function () {
     SubmissionsPage.prototype.selectGroup = function (list) {
         this.navCtrl.push(__WEBPACK_IMPORTED_MODULE_3__pages_submission_submission__["a" /* SubmissionPage */], { list: list });
     };
+    SubmissionsPage.prototype.confirmDelete = function (index, listName) {
+        var _this = this;
+        var alert = this.alertCtrl.create({
+            title: 'Delete Submissions',
+            message: 'Are you sure you want to remove all submissions for this list?',
+            buttons: [
+                {
+                    text: 'Cancel',
+                    role: 'cancel',
+                    handler: function () { }
+                },
+                {
+                    text: 'Yes',
+                    handler: function () {
+                        _this.submissions.splice(index, 1);
+                        _this.storage.get("submissions").then(function (data) {
+                            if (data) {
+                                delete data[listName];
+                                _this.storage.set("submissions", data);
+                            }
+                        });
+                    }
+                }
+            ]
+        });
+        alert.present();
+    };
     return SubmissionsPage;
 }());
 SubmissionsPage = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
-        selector: 'page-submissions',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submissions\submissions.html"*/'<ion-header>\n    <ion-navbar>\n        <ion-title>\n            Submissions\n        </ion-title>\n    </ion-navbar>\n</ion-header>\n\n<ion-content>\n\n    \n    <ion-list class="submissions-list">\n        <button ion-item *ngFor="let submissionList of submissions" (click)="selectGroup(submissionList)">\n                {{submissionList}}\n        </button>  \n\n    </ion-list>    \n    \n    \n    \n</ion-content>\n'/*ion-inline-end:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submissions\submissions.html"*/
+        selector: 'page-submissions',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submissions\submissions.html"*/'<ion-header>\n    <ion-navbar>\n        <ion-title>\n            Submissions\n        </ion-title>\n    </ion-navbar>\n</ion-header>\n\n<ion-content>\n\n    \n    <ion-list class="submissions-list">\n        <ion-item-sliding #item *ngFor="let submissionList of submissions; let i = index">\n        <button ion-item  (click)="selectGroup(submissionList)">\n                {{submissionList}}\n        </button>  \n            \n     <ion-item-options side="right">\n      <button ion-button color="danger" (click)="confirmDelete(i, submissionList)">Delete</button>\n    </ion-item-options>           \n            \n            </ion-item-sliding>\n\n    </ion-list>    \n    \n    \n    \n</ion-content>\n'/*ion-inline-end:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submissions\submissions.html"*/
     }),
-    __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */], __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */]])
+    __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _c || Object])
 ], SubmissionsPage);
 
+var _a, _b, _c;
 //# sourceMappingURL=submissions.js.map
 
 /***/ }),
@@ -259,8 +288,8 @@ var SubmissionPage = (function () {
     };
     SubmissionPage.prototype.sendEmail = function () {
         if (!this.properties.premium) {
-            this.openPremiumModal();
-            return;
+            //this.openPremiumModal();
+            //return;
         }
         var email = {
             to: '',
@@ -270,20 +299,53 @@ var SubmissionPage = (function () {
         };
         for (var _i = 0, _a = this.submissions; _i < _a.length; _i++) {
             var submission = _a[_i];
-            email.to += submission["email"] ? submission["email"] + "," : "";
+            email.to += submission["email"] && submission["email"].indexOf("@") > -1 ? submission["email"] + "," : "";
         }
         email.to = email.to.replace(/(^,)|(,$)/g, "");
         this.emailComposer.open(email);
+    };
+    SubmissionPage.prototype.confirmDelete = function (index) {
+        var _this = this;
+        var alert = this.alertCtrl.create({
+            title: 'Delete Submission',
+            message: 'Are you sure you want to remove this submission?',
+            buttons: [
+                {
+                    text: 'Cancel',
+                    role: 'cancel',
+                    handler: function () { }
+                },
+                {
+                    text: 'Yes',
+                    handler: function () {
+                        _this.submissions.splice(index, 1);
+                        _this.storage.get("submissions").then(function (data) {
+                            if (data) {
+                                for (var index in data) {
+                                    if (index === _this.properties.list) {
+                                        data[index] = _this.submissions;
+                                        _this.storage.set("submissions", data);
+                                        break;
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            ]
+        });
+        alert.present();
     };
     return SubmissionPage;
 }());
 SubmissionPage = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
-        selector: 'page-submission',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submission\submission.html"*/'<ion-header>\n    <ion-navbar>\n        <ion-title>\n            {{properties.list}}\n        </ion-title>\n        \n        <ion-buttons end>\n            <button ion-button icon-only (click)="saveFile()" class="download-list">\n                <ion-icon name="download"></ion-icon>\n            </button>              \n            <button ion-button icon-only (click)="sendEmail()">\n                <ion-icon name="send"></ion-icon>\n            </button>\n          \n        </ion-buttons>   \n        \n        \n    </ion-navbar>\n</ion-header>\n\n<ion-content>\n\n    \n    <ion-grid class="submissions-table">\n        <ion-row *ngFor="let submission of submissions">\n            <ion-col *ngFor="let field of getKeys(submission)">\n                <strong>{{field}}</strong>\n                <p>{{submission[field]}}</p>\n            </ion-col>\n        </ion-row>\n    </ion-grid>    \n    \n    \n</ion-content>\n'/*ion-inline-end:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submission\submission.html"*/
+        selector: 'page-submission',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submission\submission.html"*/'<ion-header>\n    <ion-navbar>\n        <ion-title>\n            {{properties.list}}\n        </ion-title>\n        \n        <ion-buttons end>\n            <button ion-button icon-only (click)="saveFile()" class="download-list">\n                <ion-icon name="download"></ion-icon>\n            </button>              \n            <button ion-button icon-only (click)="sendEmail()">\n                <ion-icon name="send"></ion-icon>\n            </button>\n          \n        </ion-buttons>   \n        \n        \n    </ion-navbar>\n</ion-header>\n\n<ion-content>\n\n    \n    <ion-grid class="submissions-table">\n        <ion-row *ngFor="let submission of submissions;let i = index" (press)="confirmDelete(i)">\n            <ion-col *ngFor="let field of getKeys(submission)">\n                <strong>{{field}}</strong>\n                <p>{{submission[field]}}</p>\n            </ion-col>\n        </ion-row>\n    </ion-grid>    \n    \n    \n</ion-content>\n'/*ion-inline-end:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submission\submission.html"*/
     }),
-    __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */], __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */], __WEBPACK_IMPORTED_MODULE_4__ionic_native_file__["a" /* File */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */], __WEBPACK_IMPORTED_MODULE_5__ionic_native_email_composer__["a" /* EmailComposer */]])
+    __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */]) === "function" && _e || Object, typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_4__ionic_native_file__["a" /* File */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_4__ionic_native_file__["a" /* File */]) === "function" && _f || Object, typeof (_g = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _g || Object, typeof (_h = typeof __WEBPACK_IMPORTED_MODULE_5__ionic_native_email_composer__["a" /* EmailComposer */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_5__ionic_native_email_composer__["a" /* EmailComposer */]) === "function" && _h || Object])
 ], SubmissionPage);
 
+var _a, _b, _c, _d, _e, _f, _g, _h;
 //# sourceMappingURL=submission.js.map
 
 /***/ }),
