@@ -584,14 +584,16 @@ var HomePage = (function () {
         var _this = this;
         var cameraOptions = {
             sourceType: this.camera.PictureSourceType.PHOTOLIBRARY,
-            destinationType: this.camera.DestinationType.FILE_URI,
-            quality: 10
+            destinationType: this.camera.DestinationType.DATA_URL,
+            encodingType: this.camera.EncodingType.JPEG,
+            quality: 100
         };
         this.camera.getPicture(cameraOptions)
-            .then(function (file_uri) {
-            alert(file_uri);
-            _this.properties.background = file_uri;
-            _this.storage.set("backgroundImage", file_uri);
+            .then(function (imageData) {
+            //alert(imageData);
+            var base64Image = 'data:image/jpeg;base64,' + imageData;
+            _this.properties.background = base64Image;
+            _this.storage.set("backgroundImage", base64Image);
         }, function (err) { return console.log(err); });
     };
     HomePage.prototype.setLogo = function () {
@@ -1072,13 +1074,13 @@ var PremiumModal = (function () {
         this.iap
             .getProducts(['com.openhome.app.premium'])
             .then(function (products) {
-            alert(products);
+            alert(JSON.stringify(products));
             if (products.length > 0) {
                 _this.product = products[0];
             }
         })
             .catch(function (err) {
-            alert(err);
+            alert(JSON.stringify(err));
             console.log(err);
         });
     }
@@ -1090,7 +1092,7 @@ var PremiumModal = (function () {
             _this.viewCtrl.dismiss(true);
         })
             .catch(function (err) {
-            alert(err);
+            alert(JSON.stringify(err));
             console.log(err);
         });
     };
