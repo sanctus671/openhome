@@ -197,15 +197,8 @@ var SubmissionPage = (function () {
         this.iab = iab;
         this.submissions = [];
         this.properties = { list: params.data.list, premium: false };
-        this.storage.get("submissions").then(function (data) {
-            if (data) {
-                for (var index in data) {
-                    if (index === _this.properties.list) {
-                        _this.submissions = data[index];
-                    }
-                }
-            }
-        });
+        this.fields = [];
+        this.updateData();
         this.storage.get('premium').then(function (data) {
             if (data) {
                 _this.properties.premium = data;
@@ -216,6 +209,9 @@ var SubmissionPage = (function () {
         });
     }
     SubmissionPage.prototype.ionViewDidEnter = function () {
+        this.updateData();
+    };
+    SubmissionPage.prototype.updateData = function () {
         var _this = this;
         this.storage.get("submissions").then(function (data) {
             if (data) {
@@ -224,6 +220,11 @@ var SubmissionPage = (function () {
                         _this.submissions = data[index];
                     }
                 }
+            }
+        });
+        this.storage.get('fields').then(function (data) {
+            if (data) {
+                _this.fields = data;
             }
         });
     };
@@ -379,38 +380,24 @@ var SubmissionPage = (function () {
         });
         alert.present();
     };
-    SubmissionPage.prototype.isNotLink = function (field) {
-        return !(this.isLink(field) || this.isPhone(field) || this.isEmail(field));
-    };
-    SubmissionPage.prototype.isLink = function (field) {
-        field = field.toLowerCase();
-        if (field.indexOf("website") > -1 || field.indexOf("url") > -1) {
-            return true;
+    SubmissionPage.prototype.openLink = function (fieldName, value) {
+        for (var _i = 0, _a = this.fields; _i < _a.length; _i++) {
+            var field = _a[_i];
+            if (field.name === fieldName) {
+                if (field.inputType === "phone") {
+                    this.iab.create("tel:" + value, "_system");
+                }
+                else if (field.inputType === "email") {
+                    this.iab.create("mailto:" + value, "_system");
+                }
+            }
         }
-        return false;
-    };
-    SubmissionPage.prototype.isPhone = function (field) {
-        field = field.toLowerCase();
-        if (field.indexOf("phone") > -1 || field.indexOf("mobile") > -1) {
-            return true;
-        }
-        return false;
-    };
-    SubmissionPage.prototype.isEmail = function (field) {
-        field = field.toLowerCase();
-        if (field.indexOf("email") > -1) {
-            return true;
-        }
-        return false;
-    };
-    SubmissionPage.prototype.openLink = function (link) {
-        this.iab.create(link, "_system");
     };
     return SubmissionPage;
 }());
 SubmissionPage = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
-        selector: 'page-submission',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submission\submission.html"*/'<ion-header>\n    <ion-navbar>\n        <ion-title>\n            {{properties.list}}\n        </ion-title>\n        \n        <ion-buttons end>\n            <button ion-button icon-only (click)="saveFile()" class="download-list">\n                <ion-icon name="download"></ion-icon>\n            </button>              \n            <button ion-button icon-only (click)="sendEmail()">\n                <ion-icon name="send"></ion-icon>\n            </button>\n          \n        </ion-buttons>   \n        \n        \n    </ion-navbar>\n</ion-header>\n\n<ion-content>\n\n    \n    <ion-grid class="submissions-table">\n        <ion-row *ngFor="let submission of submissions;let i = index" (press)="confirmDelete(i)">\n            <ion-col *ngFor="let field of getKeys(submission)">\n                <strong>{{field}}</strong>\n                <p *ngIf="isNotLink(field)">{{submission[field]}}</p>\n                <a *ngIf="isPhone(field)" (click)="openLink(\'tel:\' + submission[field])">{{submission[field]}}</a>\n                <a *ngIf="isEmail(field)" (click)="openLink(\'mailto:\' + submission[field])">{{submission[field]}}</a>\n                <a *ngIf="isLink(field)" (click)="openLink(submission[field])">{{submission[field]}}</a>\n            </ion-col>\n        </ion-row>\n    </ion-grid>    \n    \n    \n</ion-content>\n'/*ion-inline-end:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submission\submission.html"*/
+        selector: 'page-submission',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submission\submission.html"*/'<ion-header>\n    <ion-navbar>\n        <ion-title>\n            {{properties.list}}\n        </ion-title>\n        \n        <ion-buttons end>\n            <button ion-button icon-only (click)="saveFile()" class="download-list">\n                <ion-icon name="download"></ion-icon>\n            </button>              \n            <button ion-button icon-only (click)="sendEmail()">\n                <ion-icon name="send"></ion-icon>\n            </button>\n          \n        </ion-buttons>   \n        \n        \n    </ion-navbar>\n</ion-header>\n\n<ion-content>\n\n    \n    <ion-grid class="submissions-table">\n        <ion-row *ngFor="let submission of submissions;let i = index" (press)="confirmDelete(i)">\n            <ion-col *ngFor="let field of getKeys(submission)">\n                <strong>{{field}}</strong>\n                <p (click)="openLink(field, submission[field])">{{submission[field]}}</p>\n            </ion-col>\n        </ion-row>\n    </ion-grid>    \n    \n    \n</ion-content>\n'/*ion-inline-end:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submission\submission.html"*/
     }),
     __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */]) === "function" && _e || Object, typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_4__ionic_native_file__["a" /* File */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_4__ionic_native_file__["a" /* File */]) === "function" && _f || Object, typeof (_g = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _g || Object, typeof (_h = typeof __WEBPACK_IMPORTED_MODULE_6__ionic_native_email_composer__["a" /* EmailComposer */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_6__ionic_native_email_composer__["a" /* EmailComposer */]) === "function" && _h || Object, typeof (_j = typeof __WEBPACK_IMPORTED_MODULE_5__ionic_native_file_opener__["a" /* FileOpener */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_5__ionic_native_file_opener__["a" /* FileOpener */]) === "function" && _j || Object, typeof (_k = typeof __WEBPACK_IMPORTED_MODULE_7__ionic_native_in_app_browser__["a" /* InAppBrowser */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_7__ionic_native_in_app_browser__["a" /* InAppBrowser */]) === "function" && _k || Object])
 ], SubmissionPage);
