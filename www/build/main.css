@@ -25679,6 +25679,11 @@ ion-list.select-list .item .add-list-button ion-icon {
   margin-bottom: 15px;
 }
 
+.submissions-table a {
+  display: block;
+  margin-top: 1em;
+}
+
 .submissions-list {
   padding: 0px;
 }

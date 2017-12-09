@@ -145,10 +145,9 @@ SubmissionsPage = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
         selector: 'page-submissions',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submissions\submissions.html"*/'<ion-header>\n    <ion-navbar>\n        <ion-title>\n            Submissions\n        </ion-title>\n    </ion-navbar>\n</ion-header>\n\n<ion-content>\n\n    \n    <ion-list class="submissions-list">\n        <ion-item-sliding #item *ngFor="let submissionList of submissions; let i = index">\n        <button ion-item  (click)="selectGroup(submissionList)">\n                {{submissionList}}\n        </button>  \n            \n     <ion-item-options side="right">\n      <button ion-button color="danger" (click)="confirmDelete(i, submissionList)">Delete</button>\n    </ion-item-options>           \n            \n            </ion-item-sliding>\n\n    </ion-list>    \n    \n    \n    \n</ion-content>\n'/*ion-inline-end:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submissions\submissions.html"*/
     }),
-    __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _c || Object])
+    __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */], __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]])
 ], SubmissionsPage);
 
-var _a, _b, _c;
 //# sourceMappingURL=submissions.js.map
 
 /***/ }),
@@ -163,7 +162,8 @@ var _a, _b, _c;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_storage__ = __webpack_require__(32);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__modals_premium_premium__ = __webpack_require__(52);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ionic_native_file__ = __webpack_require__(191);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ionic_native_email_composer__ = __webpack_require__(193);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ionic_native_file_opener__ = __webpack_require__(277);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__ionic_native_email_composer__ = __webpack_require__(193);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -179,8 +179,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 var SubmissionPage = (function () {
-    function SubmissionPage(navCtrl, events, storage, modalCtrl, params, file, alertCtrl, emailComposer) {
+    function SubmissionPage(navCtrl, events, storage, modalCtrl, params, file, alertCtrl, emailComposer, fileOpener) {
         var _this = this;
         this.navCtrl = navCtrl;
         this.events = events;
@@ -190,8 +191,9 @@ var SubmissionPage = (function () {
         this.file = file;
         this.alertCtrl = alertCtrl;
         this.emailComposer = emailComposer;
+        this.fileOpener = fileOpener;
         this.submissions = [];
-        this.properties = { list: params.data.list, premium: false };
+        this.properties = { list: params.data.list, premium: true };
         this.storage.get("submissions").then(function (data) {
             if (data) {
                 for (var index in data) {
@@ -234,11 +236,25 @@ var SubmissionPage = (function () {
         }
         var csv = this.convertToCSV();
         var fileName = this.properties.list + ".csv";
+        var fullPath = this.file.dataDirectory + fileName;
+        console.log(fullPath);
         this.file.writeFile(this.file.dataDirectory, fileName, csv, { replace: true }).then(function () {
             var alert = _this.alertCtrl.create({
                 title: 'List saved',
                 subTitle: "You can find the file in your data directory",
-                buttons: ['OK']
+                buttons: [
+                    {
+                        text: 'Cancel',
+                        role: 'OK',
+                        handler: function () { }
+                    },
+                    {
+                        text: 'Open',
+                        handler: function () {
+                            _this.fileOpener.open(fullPath, "text/csv");
+                        }
+                    }
+                ]
             });
             alert.present();
         }).catch(function (err) {
@@ -246,7 +262,19 @@ var SubmissionPage = (function () {
                 var alert = _this.alertCtrl.create({
                     title: 'List saved',
                     subTitle: "You can find the file in your data directory",
-                    buttons: ['OK']
+                    buttons: [
+                        {
+                            text: 'Cancel',
+                            role: 'OK',
+                            handler: function () { }
+                        },
+                        {
+                            text: 'Open',
+                            handler: function () {
+                                _this.fileOpener.open(fullPath, "text/csv");
+                            }
+                        }
+                    ]
                 });
                 alert.present();
             }).catch(function (err) {
@@ -288,8 +316,8 @@ var SubmissionPage = (function () {
     };
     SubmissionPage.prototype.sendEmail = function () {
         if (!this.properties.premium) {
-            //this.openPremiumModal();
-            //return;
+            this.openPremiumModal();
+            return;
         }
         var email = {
             to: '',
@@ -301,6 +329,7 @@ var SubmissionPage = (function () {
             var submission = _a[_i];
             email.to += submission["email"] && submission["email"].indexOf("@") > -1 ? submission["email"] + "," : "";
         }
+        console.log(email);
         email.to = email.to.replace(/(^,)|(,$)/g, "");
         this.emailComposer.open(email);
     };
@@ -336,16 +365,44 @@ var SubmissionPage = (function () {
         });
         alert.present();
     };
+    SubmissionPage.prototype.isNotLink = function (field) {
+        return !(this.isLink(field) || this.isPhone(field) || this.isEmail(field));
+    };
+    SubmissionPage.prototype.isLink = function (field) {
+        field = field.toLowerCase();
+        if (field.indexOf("website") > -1 || field.indexOf("url") > -1) {
+            return true;
+        }
+        return false;
+    };
+    SubmissionPage.prototype.isPhone = function (field) {
+        field = field.toLowerCase();
+        if (field.indexOf("phone") > -1 || field.indexOf("mobile") > -1) {
+            return true;
+        }
+        return false;
+    };
+    SubmissionPage.prototype.isEmail = function (field) {
+        field = field.toLowerCase();
+        if (field.indexOf("email") > -1) {
+            return true;
+        }
+        return false;
+    };
+    SubmissionPage.prototype.openLink = function (link) {
+        console.log(link);
+        window.open(link, "_system");
+    };
     return SubmissionPage;
 }());
 SubmissionPage = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
-        selector: 'page-submission',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submission\submission.html"*/'<ion-header>\n    <ion-navbar>\n        <ion-title>\n            {{properties.list}}\n        </ion-title>\n        \n        <ion-buttons end>\n            <button ion-button icon-only (click)="saveFile()" class="download-list">\n                <ion-icon name="download"></ion-icon>\n            </button>              \n            <button ion-button icon-only (click)="sendEmail()">\n                <ion-icon name="send"></ion-icon>\n            </button>\n          \n        </ion-buttons>   \n        \n        \n    </ion-navbar>\n</ion-header>\n\n<ion-content>\n\n    \n    <ion-grid class="submissions-table">\n        <ion-row *ngFor="let submission of submissions;let i = index" (press)="confirmDelete(i)">\n            <ion-col *ngFor="let field of getKeys(submission)">\n                <strong>{{field}}</strong>\n                <p>{{submission[field]}}</p>\n            </ion-col>\n        </ion-row>\n    </ion-grid>    \n    \n    \n</ion-content>\n'/*ion-inline-end:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submission\submission.html"*/
+        selector: 'page-submission',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submission\submission.html"*/'<ion-header>\n    <ion-navbar>\n        <ion-title>\n            {{properties.list}}\n        </ion-title>\n        \n        <ion-buttons end>\n            <button ion-button icon-only (click)="saveFile()" class="download-list">\n                <ion-icon name="download"></ion-icon>\n            </button>              \n            <button ion-button icon-only (click)="sendEmail()">\n                <ion-icon name="send"></ion-icon>\n            </button>\n          \n        </ion-buttons>   \n        \n        \n    </ion-navbar>\n</ion-header>\n\n<ion-content>\n\n    \n    <ion-grid class="submissions-table">\n        <ion-row *ngFor="let submission of submissions;let i = index" (press)="confirmDelete(i)">\n            <ion-col *ngFor="let field of getKeys(submission)">\n                <strong>{{field}}</strong>\n                <p *ngIf="isNotLink(field)">{{submission[field]}}</p>\n                <a *ngIf="isPhone(field)" (click)="openLink(\'tel:\' + submission[field])">{{submission[field]}}</a>\n                <a *ngIf="isEmail(field)" (click)="openLink(\'mailto:\' + submission[field])">{{submission[field]}}</a>\n                <a *ngIf="isLink(field)" (click)="openLink(submission[field])">{{submission[field]}}</a>\n            </ion-col>\n        </ion-row>\n    </ion-grid>    \n    \n    \n</ion-content>\n'/*ion-inline-end:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\submission\submission.html"*/
     }),
-    __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */]) === "function" && _e || Object, typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_4__ionic_native_file__["a" /* File */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_4__ionic_native_file__["a" /* File */]) === "function" && _f || Object, typeof (_g = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _g || Object, typeof (_h = typeof __WEBPACK_IMPORTED_MODULE_5__ionic_native_email_composer__["a" /* EmailComposer */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_5__ionic_native_email_composer__["a" /* EmailComposer */]) === "function" && _h || Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */]) === "function" && _e || Object, typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_4__ionic_native_file__["a" /* File */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_4__ionic_native_file__["a" /* File */]) === "function" && _f || Object, typeof (_g = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _g || Object, typeof (_h = typeof __WEBPACK_IMPORTED_MODULE_6__ionic_native_email_composer__["a" /* EmailComposer */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_6__ionic_native_email_composer__["a" /* EmailComposer */]) === "function" && _h || Object, typeof (_j = typeof __WEBPACK_IMPORTED_MODULE_5__ionic_native_file_opener__["a" /* FileOpener */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_5__ionic_native_file_opener__["a" /* FileOpener */]) === "function" && _j || Object])
 ], SubmissionPage);
 
-var _a, _b, _c, _d, _e, _f, _g, _h;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j;
 //# sourceMappingURL=submission.js.map
 
 /***/ }),
@@ -716,10 +773,9 @@ HomePage = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
         selector: 'page-home',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\home\home.html"*/'\n\n<ion-content padding [ngStyle]="{\'background-image\': \'url(\' + properties.background + \')\'}" class="form-container" [ngClass]="{\'live-mode-container\' : properties.live}">\n    \n    <div class="form-header">         \n        <img [src]="properties.logo" (click)="setLogo()"/>\n        <p (click)="openEditIntro()">{{properties.intro}}</p>\n    </div>\n    \n    <ion-list class="questions">\n        <ion-item-group reorder="{{!properties.live}}" (ionItemReorder)="reorderFields($event)" [ngClass]="{\'edit-mode\' : !properties.live}">\n            <ion-item *ngFor="let field of fields; let i = index" (click)="openEditFieldModal(field)" >\n                \n                <ion-icon name="trash" item-left (click)="openRemoveField($event, i)" *ngIf="!properties.live"></ion-icon>\n                <ion-label floating *ngIf="field.inputType === \'text\' || \n                           field.inputType === \'email\' || \n                           field.inputType === \'number\' || \n                           field.inputType === \'date\' || \n                           field.inputType === \'phone\' || \n                           field.inputType === \'textarea\'">\n                    {{field.label}}\n            </ion-label>\n                \n                <ion-input type="text" *ngIf="field.inputType === \'text\'" [(ngModel)]="field.enteredValue"></ion-input>\n                \n                <ion-input type="email" *ngIf="field.inputType === \'email\'" [(ngModel)]="field.enteredValue"></ion-input>\n                \n                <ion-input type="number" *ngIf="field.inputType === \'number\'" [(ngModel)]="field.enteredValue"></ion-input>\n                \n                \n                <ion-input type="tel" *ngIf="field.inputType === \'phone\'" [(ngModel)]="field.enteredValue"></ion-input>\n                \n                <ion-datetime displayFormat="DD/MM/YYYY" *ngIf="field.inputType === \'date\'" [(ngModel)]="field.enteredValue"></ion-datetime>\n                \n                <ion-textarea *ngIf="field.inputType === \'textarea\'" [(ngModel)]="field.enteredValue"></ion-textarea>\n                \n                <p *ngIf="field.inputType === \'select\'">{{field.label}}</p>\n                \n                <ion-segment *ngIf="field.inputType === \'select\'" [(ngModel)]="field.enteredValue">\n                    <ion-segment-button *ngFor="let option of field.options" value="{{option.value}}">\n                        {{option.value}}\n                    </ion-segment-button>\n                </ion-segment> \n                \n                \n               \n            </ion-item>\n\n        </ion-item-group>\n        \n        <button ion-button block (click)="openAddFieldModal()" *ngIf="!properties.live">Add Field</button>\n        \n\n        <button ion-button block (click)="saveSubmission()" *ngIf="properties.live">Submit</button>\n    </ion-list>\n    \n    \n    <div class="property-buttons" *ngIf="!properties.live">\n        \n        <button ion-button block color="light" outline (click)="setBackground()" icon-left>\n            <ion-icon name="images"></ion-icon>\n            Background\n        </button>\n        \n        <button ion-button block color="light" outline (click)="openChangeListModal()" icon-left>\n            <ion-icon name="list-box"></ion-icon>    \n            {{properties.list === "default" ? "Current List" : properties.list}}\n        </button>\n        \n    </div>\n    \n    \n\n</ion-content>\n\n\n<button ion-button block (click)="goLive()" *ngIf="!properties.live" class="go-live-button">Go Live</button>\n<button ion-button block (click)="goEditMode()" *ngIf="properties.live" class="go-edit-mode" class="edit-mode-button">Edit Mode</button>\n\n<button ion-button block outline (click)="openPremiumModal()" *ngIf="!properties.live && !properties.premium" class="upgrade-button">Upgrade</button>'/*ion-inline-end:"D:\Taylor\Documents\Websites\openhome\openHome\src\pages\home\home.html"*/
     }),
-    __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_6__ionic_storage__["b" /* Storage */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_6__ionic_storage__["b" /* Storage */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _e || Object, typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_7__ionic_native_camera__["a" /* Camera */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_7__ionic_native_camera__["a" /* Camera */]) === "function" && _f || Object])
+    __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */], __WEBPACK_IMPORTED_MODULE_6__ionic_storage__["b" /* Storage */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */], __WEBPACK_IMPORTED_MODULE_7__ionic_native_camera__["a" /* Camera */]])
 ], HomePage);
 
-var _a, _b, _c, _d, _e, _f;
 //# sourceMappingURL=home.js.map
 
 /***/ }),
@@ -966,26 +1022,28 @@ Object(__WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__["a" /* pl
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ionic_storage__ = __webpack_require__(32);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ionic_native_file__ = __webpack_require__(191);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ionic_native_email_composer__ = __webpack_require__(193);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__ionic_native_in_app_purchase__ = __webpack_require__(194);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__app_component__ = __webpack_require__(276);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__pages_submissions_submissions__ = __webpack_require__(198);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__pages_submission_submission__ = __webpack_require__(199);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__pages_home_home__ = __webpack_require__(200);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__pages_tabs_tabs__ = __webpack_require__(197);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__modals_fields_add_field__ = __webpack_require__(201);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__modals_fields_edit_field__ = __webpack_require__(202);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__modals_lists_lists__ = __webpack_require__(203);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__modals_premium_premium__ = __webpack_require__(52);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__ionic_native_status_bar__ = __webpack_require__(195);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__ionic_native_splash_screen__ = __webpack_require__(196);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__ionic_native_camera__ = __webpack_require__(204);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ionic_native_file_opener__ = __webpack_require__(277);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__ionic_native_email_composer__ = __webpack_require__(193);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__ionic_native_in_app_purchase__ = __webpack_require__(194);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__app_component__ = __webpack_require__(276);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__pages_submissions_submissions__ = __webpack_require__(198);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__pages_submission_submission__ = __webpack_require__(199);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__pages_home_home__ = __webpack_require__(200);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__pages_tabs_tabs__ = __webpack_require__(197);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__modals_fields_add_field__ = __webpack_require__(201);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__modals_fields_edit_field__ = __webpack_require__(202);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__modals_lists_lists__ = __webpack_require__(203);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__modals_premium_premium__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__ionic_native_status_bar__ = __webpack_require__(195);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__ionic_native_splash_screen__ = __webpack_require__(196);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__ionic_native_camera__ = __webpack_require__(204);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+
 
 
 
@@ -1013,42 +1071,43 @@ var AppModule = (function () {
 AppModule = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["L" /* NgModule */])({
         declarations: [
-            __WEBPACK_IMPORTED_MODULE_7__app_component__["a" /* MyApp */],
-            __WEBPACK_IMPORTED_MODULE_8__pages_submissions_submissions__["a" /* SubmissionsPage */],
-            __WEBPACK_IMPORTED_MODULE_9__pages_submission_submission__["a" /* SubmissionPage */],
-            __WEBPACK_IMPORTED_MODULE_10__pages_home_home__["a" /* HomePage */],
-            __WEBPACK_IMPORTED_MODULE_11__pages_tabs_tabs__["a" /* TabsPage */],
-            __WEBPACK_IMPORTED_MODULE_12__modals_fields_add_field__["a" /* AddFieldModal */],
-            __WEBPACK_IMPORTED_MODULE_13__modals_fields_edit_field__["a" /* EditFieldModal */],
-            __WEBPACK_IMPORTED_MODULE_14__modals_lists_lists__["a" /* ListsModal */],
-            __WEBPACK_IMPORTED_MODULE_15__modals_premium_premium__["a" /* PremiumModal */]
+            __WEBPACK_IMPORTED_MODULE_8__app_component__["a" /* MyApp */],
+            __WEBPACK_IMPORTED_MODULE_9__pages_submissions_submissions__["a" /* SubmissionsPage */],
+            __WEBPACK_IMPORTED_MODULE_10__pages_submission_submission__["a" /* SubmissionPage */],
+            __WEBPACK_IMPORTED_MODULE_11__pages_home_home__["a" /* HomePage */],
+            __WEBPACK_IMPORTED_MODULE_12__pages_tabs_tabs__["a" /* TabsPage */],
+            __WEBPACK_IMPORTED_MODULE_13__modals_fields_add_field__["a" /* AddFieldModal */],
+            __WEBPACK_IMPORTED_MODULE_14__modals_fields_edit_field__["a" /* EditFieldModal */],
+            __WEBPACK_IMPORTED_MODULE_15__modals_lists_lists__["a" /* ListsModal */],
+            __WEBPACK_IMPORTED_MODULE_16__modals_premium_premium__["a" /* PremiumModal */]
         ],
         imports: [
             __WEBPACK_IMPORTED_MODULE_1__angular_platform_browser__["a" /* BrowserModule */],
-            __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["e" /* IonicModule */].forRoot(__WEBPACK_IMPORTED_MODULE_7__app_component__["a" /* MyApp */], {}, {
+            __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["e" /* IonicModule */].forRoot(__WEBPACK_IMPORTED_MODULE_8__app_component__["a" /* MyApp */], {}, {
                 links: []
             }),
             __WEBPACK_IMPORTED_MODULE_3__ionic_storage__["a" /* IonicStorageModule */].forRoot()
         ],
         bootstrap: [__WEBPACK_IMPORTED_MODULE_2_ionic_angular__["c" /* IonicApp */]],
         entryComponents: [
-            __WEBPACK_IMPORTED_MODULE_7__app_component__["a" /* MyApp */],
-            __WEBPACK_IMPORTED_MODULE_8__pages_submissions_submissions__["a" /* SubmissionsPage */],
-            __WEBPACK_IMPORTED_MODULE_9__pages_submission_submission__["a" /* SubmissionPage */],
-            __WEBPACK_IMPORTED_MODULE_10__pages_home_home__["a" /* HomePage */],
-            __WEBPACK_IMPORTED_MODULE_11__pages_tabs_tabs__["a" /* TabsPage */],
-            __WEBPACK_IMPORTED_MODULE_12__modals_fields_add_field__["a" /* AddFieldModal */],
-            __WEBPACK_IMPORTED_MODULE_13__modals_fields_edit_field__["a" /* EditFieldModal */],
-            __WEBPACK_IMPORTED_MODULE_14__modals_lists_lists__["a" /* ListsModal */],
-            __WEBPACK_IMPORTED_MODULE_15__modals_premium_premium__["a" /* PremiumModal */]
+            __WEBPACK_IMPORTED_MODULE_8__app_component__["a" /* MyApp */],
+            __WEBPACK_IMPORTED_MODULE_9__pages_submissions_submissions__["a" /* SubmissionsPage */],
+            __WEBPACK_IMPORTED_MODULE_10__pages_submission_submission__["a" /* SubmissionPage */],
+            __WEBPACK_IMPORTED_MODULE_11__pages_home_home__["a" /* HomePage */],
+            __WEBPACK_IMPORTED_MODULE_12__pages_tabs_tabs__["a" /* TabsPage */],
+            __WEBPACK_IMPORTED_MODULE_13__modals_fields_add_field__["a" /* AddFieldModal */],
+            __WEBPACK_IMPORTED_MODULE_14__modals_fields_edit_field__["a" /* EditFieldModal */],
+            __WEBPACK_IMPORTED_MODULE_15__modals_lists_lists__["a" /* ListsModal */],
+            __WEBPACK_IMPORTED_MODULE_16__modals_premium_premium__["a" /* PremiumModal */]
         ],
         providers: [
-            __WEBPACK_IMPORTED_MODULE_16__ionic_native_status_bar__["a" /* StatusBar */],
-            __WEBPACK_IMPORTED_MODULE_17__ionic_native_splash_screen__["a" /* SplashScreen */],
+            __WEBPACK_IMPORTED_MODULE_17__ionic_native_status_bar__["a" /* StatusBar */],
+            __WEBPACK_IMPORTED_MODULE_18__ionic_native_splash_screen__["a" /* SplashScreen */],
             __WEBPACK_IMPORTED_MODULE_4__ionic_native_file__["a" /* File */],
-            __WEBPACK_IMPORTED_MODULE_5__ionic_native_email_composer__["a" /* EmailComposer */],
-            __WEBPACK_IMPORTED_MODULE_6__ionic_native_in_app_purchase__["a" /* InAppPurchase */],
-            __WEBPACK_IMPORTED_MODULE_18__ionic_native_camera__["a" /* Camera */],
+            __WEBPACK_IMPORTED_MODULE_5__ionic_native_file_opener__["a" /* FileOpener */],
+            __WEBPACK_IMPORTED_MODULE_6__ionic_native_email_composer__["a" /* EmailComposer */],
+            __WEBPACK_IMPORTED_MODULE_7__ionic_native_in_app_purchase__["a" /* InAppPurchase */],
+            __WEBPACK_IMPORTED_MODULE_19__ionic_native_camera__["a" /* Camera */],
             { provide: __WEBPACK_IMPORTED_MODULE_0__angular_core__["v" /* ErrorHandler */], useClass: __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["d" /* IonicErrorHandler */] }
         ]
     })
@@ -1194,10 +1253,9 @@ PremiumModal = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["n" /* Component */])({
         selector: 'premium',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\openhome\openHome\src\modals\premium\premium.html"*/'<ion-header>\n    <ion-toolbar>\n        <ion-title>\n            Upgrade To Premium\n        </ion-title>\n        <ion-buttons start>\n            <button ion-button (click)="dismiss()">\n                <span ion-text color="primary" showWhen="ios">Cancel</span>\n                <ion-icon name="md-close" showWhen="android, windows"></ion-icon>\n            </button>\n        </ion-buttons>\n    </ion-toolbar>\n</ion-header>\n\n\n\n<ion-content>\n    \n    <div class=\'premium-header\'>    \n        <h1>Upgrade to premium to continue</h1>\n        <p>See below for the full features you get from upgrading</p>\n        <button ion-button block (click)="buyPremium()">Upgrade Now - {{product.price}}</button>\n    </div>    \n    \n    <ion-list class=\'premium-list\'>\n        <ion-item>\n            <ion-icon name="checkmark" item-start></ion-icon>\n            <h2>Unlimited fields</h2>\n            <p>Don\'t be restricted to just 4 fields. Add as many fields as you need.</p>\n        </ion-item>\n        <ion-item>\n            <ion-icon name="checkmark" item-start></ion-icon>\n            <h2>Unlimited lists</h2>\n            <p>Create individual lists for each property or location.</p>\n        </ion-item>    \n        <ion-item>\n            <ion-icon name="checkmark" item-start></ion-icon>\n            <h2>Export submissions</h2>\n            <p>Save your submissions for each list to CSV for further analysis.</p>\n        </ion-item>    \n        <ion-item>\n            <ion-icon name="checkmark" item-start></ion-icon>\n            <h2>Email your respondents</h2>\n            <p>Easily send group emails to the respondents in your lists.</p>\n        </ion-item>    \n        <ion-item>\n            <ion-icon name="checkmark" item-start></ion-icon>\n            <h2>Priority support</h2>\n            <p>Stuck with something? We\'ll help right away.</p>\n        </ion-item>    \n        <ion-item>\n            <ion-icon name="checkmark" item-start></ion-icon>\n            <h2>Priority feature requests</h2>\n            <p>Have an idea for a new feature? We\'ll listen and add it to future releases.</p>\n        </ion-item>              \n    </ion-list>  \n    \n    \n    <div class="restore">\n        <p>Already purchased premium?</p>\n        <button ion-button outline block (click)="restorePremium()">Restore Premium</button>\n    </div>\n    \n    \n</ion-content>'/*ion-inline-end:"D:\Taylor\Documents\Websites\openhome\openHome\src\modals\premium\premium.html"*/
     }),
-    __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* Platform */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* Platform */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* ViewController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* ViewController */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_3__ionic_native_in_app_purchase__["a" /* InAppPurchase */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_3__ionic_native_in_app_purchase__["a" /* InAppPurchase */]) === "function" && _e || Object, typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _f || Object])
+    __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* Platform */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavParams */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* ViewController */], __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["b" /* Storage */], __WEBPACK_IMPORTED_MODULE_3__ionic_native_in_app_purchase__["a" /* InAppPurchase */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]])
 ], PremiumModal);
 
-var _a, _b, _c, _d, _e, _f;
 //# sourceMappingURL=premium.js.map
 
 /***/ })
