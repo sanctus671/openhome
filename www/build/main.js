@@ -196,7 +196,7 @@ var SubmissionPage = (function () {
         this.fileOpener = fileOpener;
         this.iab = iab;
         this.submissions = [];
-        this.properties = { list: params.data.list, premium: true };
+        this.properties = { list: params.data.list, premium: false };
         this.storage.get("submissions").then(function (data) {
             if (data) {
                 for (var index in data) {
