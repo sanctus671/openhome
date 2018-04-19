@@ -25532,6 +25532,42 @@ ion-list .item-checkbox.item-block .item-inner {
   padding: 5px 15px;
 }
 
+.help-list ion-list .item {
+  margin-bottom: 0px;
+}
+
+.help-list ion-list .item-block .item-inner {
+  border-bottom: 0px;
+}
+
+.help-list ion-label {
+  overflow: visible;
+  white-space: normal;
+}
+
+.help-list ion-label p {
+  margin-bottom: 10px;
+}
+
+p.help-message {
+  padding: 0px 20px;
+}
+
+.send-button {
+  text-align: center;
+}
+
+.intro-slides {
+  padding: 20px 20px;
+}
+
+.intro-slides .swiper-slide {
+  -webkit-box-align: start;
+  -webkit-align-items: start;
+  -ms-flex-align: start;
+  align-items: start;
+}
+
 ion-list.select-list {
   padding: 0px;
 }
@@ -25658,6 +25694,11 @@ ion-list.select-list .item .add-list-button ion-icon {
   bottom: 55px;
 }
 
+.property-buttons.help-button {
+  right: 5px;
+  left: auto;
+}
+
 .live-mode-container .scroll-content {
   margin-bottom: 0px !important;
 }
@@ -25671,6 +25712,10 @@ ion-list.select-list .item .add-list-button ion-icon {
     position: relative;
     left: 0px;
     bottom: 0px;
+  }
+  .property-buttons.help-button {
+    left: 0px;
+    right: 0px;
   }
 }
 
