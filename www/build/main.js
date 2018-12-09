@@ -1104,7 +1104,7 @@ var IntroModal = (function () {
         this.viewCtrl = viewCtrl;
         this.storage = storage;
         this.alertCtrl = alertCtrl;
-        this.storage.set("intro", { seen: true });
+        //this.storage.set("intro", {seen:true});
     }
     IntroModal.prototype.openVideo = function () {
         this.iab.create("https://www.useloom.com/share/501ffe7bf0ff4ae2a51d0a3b77e2f46b", "_system");
